@@ -2,7 +2,7 @@ import { Router } from "express"
 
 import {
 	createCourse,
-	getCourseBySlug,
+	getCourse,
 	getCourseLessonById,
 	getCourses,
 	updateCourse,
@@ -69,24 +69,23 @@ export const coursesRouter = Router()
  *         $ref: '#/components/responses/InternalServerError'
  */
 coursesRouter.get("/courses", getCourses)
-
 /**
  * @openapi
- * /api/courses/{slug}:
+ * /api/courses/{idOrSlug}:
  *   get:
  *     tags: [Courses]
- *     summary: Get a course by slug
- *     description: Returns a single course with all its lessons and quiz data.
+ *     summary: Get a single course with lessons
+ *     description: Returns course details and all associated lessons by numeric ID or slug.
  *     parameters:
  *       - in: path
- *         name: slug
+ *         name: idOrSlug
  *         required: true
  *         schema:
  *           type: string
- *         description: The course slug
+ *         description: Course numeric ID or slug
  *     responses:
  *       200:
- *         description: Course with lessons
+ *         description: Course details with lessons
  *         content:
  *           application/json:
  *             schema:
@@ -103,28 +102,29 @@ coursesRouter.get("/courses", getCourses)
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-coursesRouter.get("/courses/:slug", getCourseBySlug)
+coursesRouter.get("/courses/:idOrSlug", getCourse)
 
 /**
  * @openapi
- * /api/courses/{slug}/lessons/{id}:
+ * /api/courses/{idOrSlug}/lessons/{id}:
  *   get:
  *     tags: [Courses]
- *     summary: Get a specific lesson
- *     description: Returns a single lesson by ID within a course, including quiz questions.
+ *     summary: Get a single lesson
+ *     description: Returns a specific lesson by ID within a published course.
  *     parameters:
  *       - in: path
- *         name: slug
+ *         name: idOrSlug
  *         required: true
  *         schema:
  *           type: string
- *         description: The course slug
+ *         description: Course numeric ID or slug
  *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: The lesson ID
+ *           minimum: 1
+ *         description: Lesson ID
  *     responses:
  *       200:
  *         description: Lesson details
@@ -137,7 +137,7 @@ coursesRouter.get("/courses/:slug", getCourseBySlug)
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-coursesRouter.get("/courses/:slug/lessons/:id", getCourseLessonById)
+coursesRouter.get("/courses/:idOrSlug/lessons/:id", getCourseLessonById)
 
 /**
  * @openapi
@@ -145,7 +145,7 @@ coursesRouter.get("/courses/:slug/lessons/:id", getCourseLessonById)
  *   post:
  *     tags: [Courses]
  *     summary: Create a new course
- *     description: Creates a new unpublished course. Requires course admin privileges.
+ *     description: Creates an unpublished course. Requires course admin privileges.
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -185,8 +185,6 @@ coursesRouter.get("/courses/:slug/lessons/:id", getCourseLessonById)
  *         $ref: '#/components/responses/BadRequestError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         $ref: '#/components/responses/ForbiddenError'
  *       409:
  *         description: Slug already exists
  *         content:
@@ -201,10 +199,10 @@ coursesRouter.post("/courses", requireCourseAdmin, createCourse)
 /**
  * @openapi
  * /api/courses/{id}:
- *   put:
+ *   patch:
  *     tags: [Courses]
  *     summary: Update a course
- *     description: Updates an existing course. Only provided fields are modified. Requires course admin privileges.
+ *     description: Partially updates an existing course. Requires course admin privileges.
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -213,7 +211,8 @@ coursesRouter.post("/courses", requireCourseAdmin, createCourse)
  *         required: true
  *         schema:
  *           type: integer
- *         description: The course ID
+ *           minimum: 1
+ *         description: Course ID
  *     requestBody:
  *       required: true
  *       content:
@@ -239,7 +238,7 @@ coursesRouter.post("/courses", requireCourseAdmin, createCourse)
  *                 type: boolean
  *     responses:
  *       200:
- *         description: Course updated
+ *         description: Updated course
  *         content:
  *           application/json:
  *             schema:
@@ -248,8 +247,6 @@ coursesRouter.post("/courses", requireCourseAdmin, createCourse)
  *         $ref: '#/components/responses/BadRequestError'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- *       403:
- *         $ref: '#/components/responses/ForbiddenError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  *       409:
@@ -261,4 +258,4 @@ coursesRouter.post("/courses", requireCourseAdmin, createCourse)
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-coursesRouter.put("/courses/:id", requireCourseAdmin, updateCourse)
+coursesRouter.patch("/courses/:id", requireCourseAdmin, updateCourse)

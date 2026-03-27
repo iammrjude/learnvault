@@ -1,6 +1,11 @@
 import { Router } from "express"
 
-import { getScholarsLeaderboard } from "../controllers/scholars.controller"
+import {
+	getScholarMilestones,
+	getScholarsLeaderboard,
+	getScholarProfile,
+	getScholarCredentials,
+} from "../controllers/scholars.controller"
 
 export const scholarsRouter = Router()
 
@@ -55,4 +60,113 @@ export const scholarsRouter = Router()
  */
 scholarsRouter.get("/scholars/leaderboard", (req, res) => {
 	void getScholarsLeaderboard(req, res)
+})
+
+/**
+ * @openapi
+ * /api/scholars/{address}:
+ *   get:
+ *     tags: [Scholars]
+ *     summary: Get scholar profile
+ *     description: Returns a scholar's on-chain balances, enrolled courses, milestone stats, credentials, and join date.
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Scholar's Stellar wallet address
+ *     responses:
+ *       200:
+ *         description: Scholar profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ScholarProfile'
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+scholarsRouter.get("/scholars/:address", (req, res) => {
+	void getScholarProfile(req, res)
+})
+
+/**
+ * @openapi
+ * /api/scholars/{address}/milestones:
+ *   get:
+ *     tags: [Scholars]
+ *     summary: Get milestones for a scholar
+ *     description: Returns milestone reports for a scholar, optionally filtered by course or status.
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Scholar's Stellar wallet address
+ *       - in: query
+ *         name: course_id
+ *         schema:
+ *           type: string
+ *         description: Filter milestones by course ID
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [pending, verified, rejected]
+ *         description: Filter milestones by status
+ *     responses:
+ *       200:
+ *         description: Scholar milestones
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 milestones:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/ScholarMilestone'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+scholarsRouter.get("/scholars/:address/milestones", (req, res) => {
+	void getScholarMilestones(req, res)
+})
+
+/**
+ * @openapi
+ * /api/scholars/{address}/credentials:
+ *   get:
+ *     tags: [Scholars]
+ *     summary: Get credentials for a scholar
+ *     description: Returns all credentials (NFTs) earned by the scholar.
+ *     parameters:
+ *       - in: path
+ *         name: address
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Scholar's Stellar wallet address
+ *     responses:
+ *       200:
+ *         description: Scholar credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 credentials:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Credential'
+ *       400:
+ *         $ref: '#/components/responses/BadRequestError'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+scholarsRouter.get("/scholars/:address/credentials", (req, res) => {
+	void getScholarCredentials(req, res)
 })

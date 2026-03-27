@@ -1,6 +1,7 @@
 import { Router } from "express"
 
 import { applyForScholarship } from "../controllers/scholarships.controller"
+import { scholarshipApplyLimiter } from "../middleware/rate-limit.middleware"
 
 export const scholarshipsRouter = Router()
 
@@ -58,6 +59,10 @@ export const scholarshipsRouter = Router()
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  */
-scholarshipsRouter.post("/scholarships/apply", (req, res) => {
-	void applyForScholarship(req, res)
-})
+scholarshipsRouter.post(
+	"/scholarships/apply",
+	scholarshipApplyLimiter,
+	(req, res) => {
+		void applyForScholarship(req, res)
+	},
+)
