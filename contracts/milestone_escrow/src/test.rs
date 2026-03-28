@@ -249,6 +249,9 @@ fn reclaim_inactive_uses_configured_window_size() {
     set_timestamp(&env, START_TS + 1);
     reclaim_inactive_authorized(&client, 12).unwrap();
     assert_eq!(token_client(&env, &token).balance(&treasury), 975);
+}
+
+#[test]
 fn reclaim_inactive_emits_event() {
     let (env, contract_id, _token, _admin, treasury, scholar) = setup();
     let client = MilestoneEscrowClient::new(&env, &contract_id);
